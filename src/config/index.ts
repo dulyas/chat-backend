@@ -1,6 +1,20 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+interface Config {
+    PORT: string,
+    DB_URL: string,
+    JWT_ACCESS_SECRET: string,
+    JWT_REFRESH_SECRET: string,
+    SMTP_HOST: string,
+    SMTP_PORT: string,
+    SMTP_USER: string,
+    SMTP_PASSWORD: string,
+    API_URL: string,
+    CLIENT_URL: string
+}
+
+
 export default {
     PORT: process.env.PORT,
     DB_URL: process.env.DB_URL,
@@ -12,4 +26,4 @@ export default {
     SMTP_PASSWORD: process.env.SMTP_PASSWORD,
     API_URL: process.env.API_URL,
     CLIENT_URL: process.env.CLIENT_URL
-}
+} as Config

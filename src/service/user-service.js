@@ -1,11 +1,11 @@
-import UserModel from "../models/user-model.js"
+import UserModel from "@/models/user-model"
 import bcrypt from 'bcrypt'
 import {v4} from 'uuid';
-import mailService from "./mail-service.js"
-import tokenService from "./token-service.js"
-import UserDto from "../dtos/user-dto.js"
-import config from "../config/index.js";
-import ApiError from "../exceptions/api-error.js";
+import mailService from "@/service/mail-service"
+import tokenService from "@/service/token-service"
+import UserDto from "@/dtos/user-dto"
+import config from "@/config/index";
+import ApiError from "@/exceptions/api-error";
 
 class UserService {
 

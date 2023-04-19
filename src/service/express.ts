@@ -1,16 +1,18 @@
-import express from "express";
+
+
+import express, { Express } from "express";
 import cors from 'cors'
 import cookieParser from "cookie-parser";
-import mongoose from "mongoose";
-import router from "./router/index.js";
-import config from "./config/index.js";
-import errorMiddleware from "./middleware/error-middleware.js";
+import mongoose, { ConnectOptions } from "mongoose";
+import router from "@/router/index";
+import config from "@/config/index";
+import errorMiddleware from "@/middleware/error-middleware";
 
 
 
 
-const PORT = config.PORT ?? 5000
-const app = express()
+const PORT: string | number = config.PORT ?? 5000
+const app: Express = express()
 
 app.use(express.json())
 app.use(cookieParser())
@@ -22,16 +24,16 @@ app.use(cors({
 app.use('/api', router)
 app.use(errorMiddleware)
 
-const start = async () => {
+const start: Function = async (): Promise<void> => {
     try {
         await mongoose.connect(config.DB_URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true
-        })
+        } as ConnectOptions)
         app.listen(PORT, () => console.log(`server listen on ${PORT}`))
     } catch (e) {
         console.log(e)
     }
 }
 
-start()
+export default start

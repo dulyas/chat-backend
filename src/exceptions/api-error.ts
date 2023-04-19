@@ -1,18 +1,21 @@
-export default class ApiError extends Error {
-    status
-    error
+import { ValidationError } from "express-validator"
 
-    constructor(status, message, errors) {
+
+export default class ApiError extends Error {
+    status: number
+    errors?: ValidationError[]
+
+    constructor(status: number, message: string, errors?: ValidationError[]) {
         super(message) 
         this.status = status 
-        this.errors = errors
+        if (errors) this.errors = errors
     }
 
     static UnauthorizedError() {
         return new ApiError(401, "Пользователь не зарегистрирован")
     }
 
-    static BadRequest(message, errors = []) {
+    static BadRequest(message: string, errors: ValidationError[] = []) {
         return new ApiError(400, message, errors)
     }
 }
