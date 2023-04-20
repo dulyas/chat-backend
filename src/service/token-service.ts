@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken"
-import TokenModel from "@/models/token-model"
+import TokenModel, { UserToken } from "@/models/token-model"
 import config from "@/config/index"
 
+
 class TokenService {
-    generateTokens(payload) {
-        const accessToken = jwt.sign(payload, config.JWT_ACCESS_SECRET, {expiresIn: '15m'})
-        const refreshToken = jwt.sign(payload, config.JWT_REFRESH_SECRET, {expiresIn: '30d'})
+    generateTokens(payload: string | object | Buffer) {
+        const accessToken: string = jwt.sign(payload, config.JWT_ACCESS_SECRET, {expiresIn: '15m'})
+        const refreshToken: string = jwt.sign(payload, config.JWT_REFRESH_SECRET, {expiresIn: '30d'})
 
         return {
             accessToken,
@@ -13,7 +14,7 @@ class TokenService {
         }
     }
 
-    async saveToken(userId, refreshToken) {
+    async saveToken(userId: string, refreshToken: string) {
         const tokenData = await TokenModel.findOne({user: userId}) 
         if (tokenData) {
             tokenData.refreshToken = refreshToken
@@ -24,30 +25,30 @@ class TokenService {
         return token
     }
 
-    async removeToken(refreshToken) {
+    async removeToken(refreshToken: string) {
         const tokenData = await TokenModel.deleteOne({refreshToken})
         return tokenData
     }
 
-    async findToken(refreshToken) {
+    async findToken(refreshToken: string) {
         const tokenData = await TokenModel.findOne({refreshToken})
         return tokenData
     }
 
 
-    validateAccessToken(token) {
+    validateAccessToken(token: string) {
         try {
             const userData = jwt.verify(token, config.JWT_ACCESS_SECRET)
-            return userData
+            return userData as UserToken
         } catch (e) {
             return null
         }
     }
 
-    validateRefreshToken(token) {
+    validateRefreshToken(token: string) {
         try {
             const userData = jwt.verify(token, config.JWT_REFRESH_SECRET)
-            return userData
+            return userData as UserToken
         } catch (e) {
             return null
         }

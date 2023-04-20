@@ -1,17 +1,18 @@
-import UserModel from "@/models/user-model"
+import UserModel, { User } from "@/models/user-model"
 import bcrypt from 'bcrypt'
 import {v4} from 'uuid';
-import mailService from "@/service/mail-service"
 import tokenService from "@/service/token-service"
 import UserDto from "@/dtos/user-dto"
-import config from "@/config/index";
 import ApiError from "@/exceptions/api-error";
+import { DeleteResult } from "mongodb";
 
 class UserService {
 
-    async generateAndSaveTokens(user) {
+    async generateAndSaveTokens(user: User): Promise<any> {
         const userDto = new UserDto(user)
         const tokens = tokenService.generateTokens({...userDto})
+
+        
 
         await tokenService.saveToken(userDto.id, tokens.refreshToken)
 
@@ -21,7 +22,7 @@ class UserService {
         }
     }
 
-    async registration(email, password) {
+    async registration(email: string, password: string) {
         const candidate = await UserModel.findOne({email})
         if (candidate) {
             throw ApiError.BadRequest('Email already exist')
@@ -42,16 +43,16 @@ class UserService {
 
     }
 
-    async activate(activationLink) {
+    async activate(activationLink: string): Promise<void> {
         const user = await UserModel.findOne({activationLink})
         if (!user) {
-            throw new ApiError.BadRequest('wrong link')
+            throw ApiError.BadRequest('wrong link')
         }
         user.isActivated = true
         await user.save()
     }
 
-    async login(email, password) {
+    async login(email: string, password: string) {
         const user = await UserModel.findOne({email})
         if (!user) {
             throw ApiError.BadRequest('Пользователь не был найден')
@@ -71,14 +72,14 @@ class UserService {
 
     }
 
-    async logout(refreshToken) {
+    async logout(refreshToken: string) :Promise<DeleteResult> {
         const token = tokenService.removeToken(refreshToken)
         return token
     }
 
-    async refresh(refreshToken) {
+    async refresh(refreshToken: string) {
         if (!refreshToken) throw ApiError.UnauthorizedError()
-        const userData = tokenService.validateRefreshToken(refreshToken)
+        const userData: any = tokenService.validateRefreshToken(refreshToken)
         const tokenFromDb = await tokenService.findToken(refreshToken)
 
         if (!userData || !tokenFromDb) {
@@ -86,6 +87,8 @@ class UserService {
         }
 
         const user = await UserModel.findById(userData.id)
+
+        if (!user) throw ApiError.BadRequest('No User for this token')
 
         const {tokens, userDto} = await this.generateAndSaveTokens(user)
 

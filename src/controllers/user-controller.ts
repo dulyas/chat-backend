@@ -1,5 +1,5 @@
 import userService from "@/service/user-service"
-import { ErrorFormatter, Result, ValidationError, validationResult } from "express-validator"
+import { Result, ValidationError, validationResult } from "express-validator"
 import ApiError from "@/exceptions/api-error"
 import { NextFunction, Request, Response } from 'express';
 import config from "@/config";
@@ -55,7 +55,6 @@ class UserController {
     }
 
     async activate(req: Request, res: Response, next: NextFunction) {
-        console.log('activate')
         try {
             const activationLink = req.params.link
             await userService.activate(activationLink)

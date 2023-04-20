@@ -7,9 +7,16 @@ import mongoose, { ConnectOptions } from "mongoose";
 import router from "@/router/index";
 import config from "@/config/index";
 import errorMiddleware from "@/middleware/error-middleware";
+import { UserToken } from "@/models/token-model";
 
 
-
+declare global {
+    namespace Express {
+        interface Request {
+            user?: UserToken;
+        }
+    }
+}
 
 const PORT: string | number = config.PORT ?? 5000
 const app: Express = express()

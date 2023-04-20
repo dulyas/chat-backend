@@ -4,7 +4,7 @@ import { body } from "express-validator";
 import authMiddleware from "@/middleware/auth-middleware";
 
 
-const router = new Router()
+const router = Router()
 
 router.post('/registration',
     body('email').isEmail(),

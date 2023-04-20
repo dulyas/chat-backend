@@ -1,7 +1,10 @@
 import nodemailer from 'nodemailer'
 import config from '@/config/index'
+import { Transporter, TransportOptions } from 'nodemailer'
 
 class MailService {
+
+    private transporter: Transporter 
 
     constructor() {
         this.transporter = nodemailer.createTransport({
@@ -12,12 +15,12 @@ class MailService {
                 user: config.SMTP_USER,
                 pass: config.SMTP_PASSWORD
             }
-        })
+        } as TransportOptions)
 
     }
 
 
-    async sendActivationMail(to, link) {
+    async sendActivationMail(to: string, link: string) {
         await this.transporter.sendMail({
             from: config.SMTP_USER,
             to,
