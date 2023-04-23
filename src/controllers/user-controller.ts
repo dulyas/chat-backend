@@ -87,6 +87,30 @@ class UserController {
             next(e)
         }
     }
+
+    async findByEmail(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { email } = req.body
+            const users = await userService.findUsers(email)
+
+            return res.json(users)
+        } catch (e) {
+            next(e)
+        }
+    }   
+
+    async findById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.body
+            
+            const user = await userService.findOneById(id)
+
+            return res.json(user)
+        } catch (e) {
+            next(e)
+        }
+    }   
+
 }
 
 

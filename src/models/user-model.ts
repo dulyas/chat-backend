@@ -6,6 +6,8 @@ export interface User {
     isActivated: boolean
     activationLink: string
     _id: string
+    name: string
+    avatarUrl: string
 }
 
 const UserSchema = new Schema<User> ({
@@ -23,6 +25,12 @@ const UserSchema = new Schema<User> ({
         default: false
     },
     activationLink: {
+        type: String
+    },
+    avatarUrl: {
+        type: String
+    },
+    name: {
         type: String
     }
 })

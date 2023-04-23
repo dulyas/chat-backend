@@ -106,6 +106,41 @@ class UserService {
             console.log(e)
         }
     }
+
+    async findUsers(searchString: string) {
+        try {
+            const users = await UserModel.find({
+                $or: [
+                    {email: {
+                        $regex: searchString,
+                        $options: 'i'
+                    }},
+                    {name: {
+                        $regex: searchString,
+                        $options: 'i'
+                    }},
+                ]
+            })
+            return users.map(user => new UserDto(user))
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    async findOneById(id: string) {
+        try {
+            const user = await UserModel.findById(id)
+            
+            if (user) {
+                return new UserDto(user)
+            } else {
+                throw ApiError.BadRequest('User not found')
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
 }
 
 export default new UserService()
