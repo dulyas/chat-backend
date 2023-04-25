@@ -19,6 +19,19 @@ class ContractController {
         }
     }
 
+    async getFriendListFromId(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.body
+
+            const users = await contractService.getFriendListFromId(id)
+
+            return res.json(users)
+
+        } catch (e) {
+            next(e)
+        }
+    }
+
 }
 
 export default new ContractController()

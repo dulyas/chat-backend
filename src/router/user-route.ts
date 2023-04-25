@@ -20,5 +20,6 @@ router.get('/activate/:link', userController.activate)
 router.get('/refresh', userController.refresh)
 router.post('/addFriend', authMiddleware, contractController.createContract)
 router.post('/findOneById', authMiddleware, userController.findById)
+router.post('/getFriendListFromId', authMiddleware, contractController.getFriendListFromId)
 
 export default router;
