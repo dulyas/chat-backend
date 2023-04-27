@@ -107,7 +107,7 @@ class UserService {
         }
     }
 
-    async findUsers(searchString: string) {
+    async findUsers(searchString: string): Promise<UserDto[] | void> {
         try {
             const users = await UserModel.find({
                 $or: [
@@ -127,7 +127,7 @@ class UserService {
         }
     }
 
-    async findOneById(id: string) {
+    async findOneById(id: string): Promise<UserDto | void> {
         try {
             const user = await UserModel.findById(id)
             

@@ -32,6 +32,19 @@ class ContractController {
         }
     }
 
+    async deleteFriend(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { userId, friendId } = req.body
+
+            const deletedData = await contractService.deleteFriend(userId, friendId)
+
+            return res.json(deletedData)
+
+        } catch (e) {
+            next(e)
+        }
+    }
+
 }
 
 export default new ContractController()
