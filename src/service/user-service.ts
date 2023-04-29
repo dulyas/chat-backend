@@ -5,6 +5,7 @@ import tokenService from "@/service/token-service"
 import UserDto from "@/dtos/user-dto"
 import ApiError from "@/exceptions/api-error";
 import { DeleteResult } from "mongodb";
+import contractModel from "@/models/contract-model";
 
 class UserService {
 
@@ -122,6 +123,35 @@ class UserService {
                 ]
             })
             return users.map(user => new UserDto(user))
+        } catch (e) {
+            console.log(e)
+        }
+    }
+    
+    async findFriendCandidatesForUserFromId(id: string, searchString: string): Promise<UserDto[] | void> {
+        try {
+
+            const users = await this.findUsers(searchString)
+
+            if (users) {
+                const alreadyFriends = (await Promise.all(users.map(async user => await contractModel.findOne({$or: [
+                    {
+                        from: user.id,
+                        to: id
+                    },
+                    {
+                        to: user.id,
+                        from: id
+                    }
+                ]}) ? null : user))).filter(user => user instanceof UserDto)
+
+
+
+                return alreadyFriends as UserDto[]
+            }
+
+            return []
+
         } catch (e) {
             console.log(e)
         }

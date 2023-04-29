@@ -99,6 +99,18 @@ class UserController {
         }
     }   
 
+    async findFriendCandidatesForUserFromId(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id, email } = req.body
+            const users = await userService.findFriendCandidatesForUserFromId(id, email)
+
+            return res.json(users)
+        } catch (e) {
+            next(e)
+        }
+    }   
+
+
     async findById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.body

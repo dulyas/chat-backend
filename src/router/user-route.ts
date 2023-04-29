@@ -22,5 +22,7 @@ router.post('/addFriend', authMiddleware, contractController.createContract)
 router.post('/findOneById', authMiddleware, userController.findById)
 router.post('/getFriendListFromId', authMiddleware, contractController.getFriendListFromId)
 router.post('/deleteFriend', authMiddleware, contractController.deleteFriend)
+router.post('/findFriendCandidatesForUserFromId', authMiddleware, userController.findFriendCandidatesForUserFromId)
+
 
 export default router;
