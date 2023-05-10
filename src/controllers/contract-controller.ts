@@ -10,10 +10,13 @@ class ContractController {
         try {
             const {from, to} = req.body
 
-            await contractService.createContract(from, to)
+            const conference =  await contractService.createContract(from, to)
             const user = await userService.findOneById(to)
 
-            return res.json(user)
+            return res.json({
+                user,
+                conference
+            })
         } catch (e) {
             next(e)
         }

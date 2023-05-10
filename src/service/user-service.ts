@@ -132,7 +132,8 @@ class UserService {
         try {
 
             const users = await this.findUsers(searchString)
-
+            
+            
             if (users) {
                 const alreadyFriends = (await Promise.allSettled(users.flatMap(async user => await contractModel.findOne({$or: [
                     {
@@ -143,9 +144,9 @@ class UserService {
                         to: user.id,
                         from: id
                     }
-                ]}) ? [] : user))).flatMap(user => user instanceof UserDto ? user : []) 
+                ]}) ? [] : user))).flatMap(user => (user?.status === 'fulfilled' && user.value instanceof UserDto) ? user.value : []) 
 
-
+                
 
                 return alreadyFriends
             }

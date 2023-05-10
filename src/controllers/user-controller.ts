@@ -3,6 +3,7 @@ import { Result, ValidationError, validationResult } from "express-validator"
 import ApiError from "@/exceptions/api-error"
 import { NextFunction, Request, Response } from 'express';
 import config from "@/config";
+import conferenceService from "@/service/conference-service";
 
 class UserController {
     async registration(req: Request, res: Response, next: NextFunction) {
@@ -123,7 +124,17 @@ class UserController {
         }
     }   
 
+    async getAllUsersChats(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.body
 
+            const chats = await conferenceService.getAllUserChats(id)
+
+            return res.json(chats)
+        } catch (e) {
+            next(e)
+        }
+    }
 
 }
 

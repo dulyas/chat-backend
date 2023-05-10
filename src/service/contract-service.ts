@@ -1,13 +1,14 @@
-import config from "@/config";
+
 import ApiError from "@/exceptions/api-error";
-import ContractModel from "@/models/contract-model";
-import userModel, { User } from "@/models/user-model";
+import ContractModel, {Contract} from "@/models/contract-model";
 import userService from "./user-service";
 import UserDto from "@/dtos/user-dto";
-import contractModel from "@/models/contract-model";
+import ConferenceModel, {Conference} from "@/models/conference-model";
+
+
 
 class ContractService {
-    async createContract(from: string, to: string) {
+    async createContract(from: string, to: string): Promise<Conference> {
         const contract = await ContractModel.findOne({$or: [
             {
                 from,
@@ -23,13 +24,20 @@ class ContractService {
             throw ApiError.BadRequest('This users already friends')
         } 
 
-        const createContract = await ContractModel.create({
+        await ContractModel.create({
             from,
             to,
             isAccepted: true
         })
 
-        return createContract
+        const createdConference = await ConferenceModel.create({
+            usersIds: [from, to],
+            unreadMessageCount: 0
+        })
+
+        console.log(createdConference)
+
+        return createdConference
 
     }
 
@@ -65,7 +73,7 @@ class ContractService {
         status: boolean,
         userId: string
     }> {
-        const deletedResult = await contractModel.deleteOne({$or: [
+        const deletedResult = await ContractModel.deleteOne({$or: [
             {
                 from: userId,
                 to: friendId
