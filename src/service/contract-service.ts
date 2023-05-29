@@ -35,7 +35,7 @@ class ContractService {
             unreadMessageCount: 0
         })
 
-        console.log(createdConference)
+        // console.log(createdConference)
 
         return createdConference
 
