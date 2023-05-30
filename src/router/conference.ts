@@ -8,5 +8,6 @@ import authMiddleware from "@/middleware/auth-middleware";
 const router = Router()
 
 router.post('/delete',  authMiddleware, conferenceController.delete)
+router.post('/getRoomDataById', authMiddleware, conferenceController.getRoomDataById)
 
 export default router;

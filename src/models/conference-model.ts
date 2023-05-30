@@ -1,20 +1,26 @@
 import { Schema, model } from "mongoose";
 import { Message } from "./message-model";
+import { ObjectId } from "mongodb";
+import { User } from "./user-model";
+import UserDto from "@/dtos/user-dto";
 
 export interface Conference {
     id: string
-    usersIds: string[]
+    users: (User | UserDto)[]
     avatarUrl: string
     lastMessage: Message
     unreadMessageCount: number 
 }
 
+
+
 const ConferenceSchema = new Schema<Conference> ({
 
-    usersIds: {
-        type: [String],
+    users: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
-    },
+    }],
 
     unreadMessageCount: {
         type: Number,

@@ -32,7 +32,10 @@ const UserSchema = new Schema<User> ({
     },
     name: {
         type: String
-    }
+    },
+    // _id: {
+    //     type: String
+    // }
 })
 
 

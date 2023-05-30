@@ -21,7 +21,38 @@ class ConferenceController {
         }
     }
 
-  
+   async getConferenceById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {id} = req.body 
+
+            const conference = ConferenceService.getConferenceById(id)
+
+            return res.json({
+                conference
+            })
+
+        } catch (error) {
+            next(error)
+        }
+   } 
+
+   async getRoomDataById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {id} = req.body 
+
+            const roomData = await ConferenceService.getRoomDataById(id)
+
+
+            
+
+            return res.json({
+                ...roomData
+            })
+
+        } catch (error) {
+            next(error)
+        }
+    } 
 
 }
 

@@ -31,7 +31,7 @@ class ContractService {
         })
 
         const createdConference = await ConferenceModel.create({
-            usersIds: [from, to],
+            users: [from, to],
             unreadMessageCount: 0
         })
 
