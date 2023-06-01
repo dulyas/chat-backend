@@ -30,14 +30,34 @@ class ContractService {
             isAccepted: true
         })
 
-        const createdConference = await ConferenceModel.create({
-            users: [from, to],
-            unreadMessageCount: 0
-        })
+        const privateConferece = await ConferenceModel.findOne({$or: [
+            {
+                users: [from, to]
+            },
+            {
+                users: [to, from]
+            }
+        ]})
+
+
+        
+        console.log(privateConferece);
+        
+
+        if (!privateConferece) {
+            const createdConference = await ConferenceModel.create({
+                users: [from, to],
+                unreadMessageCount: 0
+            })
+            return createdConference
+        }
+        
+
+
 
         // console.log(createdConference)
+        return privateConferece
 
-        return createdConference
 
     }
 
