@@ -15,7 +15,7 @@ class UserService {
 
         
 
-        await tokenService.saveToken(userDto.id, tokens.refreshToken)
+        await tokenService.saveToken(userDto._id, tokens.refreshToken)
 
         return {
             tokens,
@@ -137,11 +137,11 @@ class UserService {
             if (users) {
                 const alreadyFriends = (await Promise.allSettled(users.flatMap(async user => await contractModel.findOne({$or: [
                     {
-                        from: user.id,
+                        from: user._id,
                         to: id
                     },
                     {
-                        to: user.id,
+                        to: user._id,
                         from: id
                     }
                 ]}) ? [] : user))).flatMap(user => (user?.status === 'fulfilled' && user.value instanceof UserDto) ? user.value : []) 

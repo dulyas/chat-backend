@@ -9,6 +9,9 @@ import config from "@/config/index";
 import errorMiddleware from "@/middleware/error-middleware";
 import { UserToken } from "@/models/token-model";
 
+import http from 'http'
+import IOInstance from "./socket";
+
 
 declare global {
     namespace Express {
@@ -31,13 +34,29 @@ app.use(cors({
 app.use('/api', router)
 app.use(errorMiddleware)
 
+const server = http.createServer(app)
+
+
+
+export const iOInstance = new IOInstance(server, {
+    cors: {
+        origin: "*"
+    },
+    pingInterval: 5000,
+    path: "/socket.io/",
+    // transports: ['websocket']
+    // transports: ["websocket", "polling"],
+  })
+  
+
 const start: Function = async (): Promise<void> => {
     try {
         await mongoose.connect(config.DB_URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         } as ConnectOptions)
-        app.listen(PORT, () => console.log(`server listen on ${PORT}`))
+        server.listen(PORT, () => console.log(`server listen on ${PORT}`))
+        
     } catch (e) {
         console.log(e)
     }

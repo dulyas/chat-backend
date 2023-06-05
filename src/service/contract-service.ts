@@ -108,7 +108,7 @@ class ContractService {
 
         return {
             status: !!deletedResult.deletedCount,
-            userId: deletedUser?.id ?? ''
+            userId: deletedUser?._id ?? ''
         }
     }
 

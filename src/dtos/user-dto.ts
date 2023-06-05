@@ -1,11 +1,12 @@
 
 
 export default class UserDto {
-    email
-    id
-    isActivated
-    avatarUrl
-    name
+    email: string
+
+    isActivated: boolean
+    avatarUrl: string
+    name: string
+    _id: string
 
     constructor(model: {
         email: string,
@@ -15,7 +16,8 @@ export default class UserDto {
         name: string
     }) {
         this.email = model.email
-        this.id = model._id
+
+        this._id = model._id
         this.isActivated = model.isActivated
         this.avatarUrl = model.avatarUrl
         this.name = model.name

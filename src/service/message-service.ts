@@ -1,9 +1,10 @@
-import UserDto from "@/dtos/user-dto";
+// import UserDto from "@/dtos/user-dto";
 import ApiError from "@/exceptions/api-error";
-import ConferenceModel, { Conference } from "@/models/conference-model";
-import { User } from "@/models/user-model";
-import { DeleteResult } from "mongodb";
+// import ConferenceModel, { Conference } from "@/models/conference-model";
+// import { User } from "@/models/user-model";
+// import { DeleteResult } from "mongodb";
 import MessageModel, {Message} from "@/models/message-model";
+
 
 
 class MessageService {
@@ -45,6 +46,8 @@ class MessageService {
         if (!updateStatus.matchedCount || !message) throw ApiError.BadRequest(`No message with this id, ${messageId}`)
         return message
     }
+
+
 
     // async getAllUserChats(id: string): Promise<Conference[]> {
     //     const chats = await ConferenceModel.find({users: id})
