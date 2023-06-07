@@ -13,6 +13,7 @@ class MessageController {
 
             const messages =  await messageService.getMessagesForConferenceFromId(roomId)
 
+
             return res.json({
                 messages
             })

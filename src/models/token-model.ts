@@ -8,7 +8,7 @@ export interface Token {
 
 export interface UserToken {
     email: string
-    id: string
+    _id: string
     isActivated: boolean
     iat: number
     exp: number

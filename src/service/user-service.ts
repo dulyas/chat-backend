@@ -6,6 +6,7 @@ import UserDto from "@/dtos/user-dto"
 import ApiError from "@/exceptions/api-error";
 import { DeleteResult } from "mongodb";
 import contractModel from "@/models/contract-model";
+import { UserToken } from "@/models/token-model";
 
 class UserService {
 
@@ -66,6 +67,9 @@ class UserService {
 
         const {tokens, userDto} = await this.generateAndSaveTokens(user)
 
+        // console.log(tokens,userDto);
+        
+
         return {
             ...tokens,
             user: userDto
@@ -80,14 +84,16 @@ class UserService {
 
     async refresh(refreshToken: string) {
         if (!refreshToken) throw ApiError.UnauthorizedError()
-        const userData: any = tokenService.validateRefreshToken(refreshToken)
+        const userData: UserToken | null = tokenService.validateRefreshToken(refreshToken)
         const tokenFromDb = await tokenService.findToken(refreshToken)
 
         if (!userData || !tokenFromDb) {
             throw ApiError.UnauthorizedError()
         }
 
-        const user = await UserModel.findById(userData.id)
+
+
+        const user = await UserModel.findById(userData._id)
 
         if (!user) throw ApiError.BadRequest('No User for this token')
 

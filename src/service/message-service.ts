@@ -4,15 +4,22 @@ import ApiError from "@/exceptions/api-error";
 // import { User } from "@/models/user-model";
 // import { DeleteResult } from "mongodb";
 import MessageModel, {Message} from "@/models/message-model";
+import { DeleteResult } from "mongodb";
 
 
 
 class MessageService {
 
     async getMessagesForConferenceFromId(roomId: string): Promise<Message[]> {
-        const messages = MessageModel.find({roomId})
+        const messages = await MessageModel.find({roomId}).sort({_id:-1})
+
 
         return messages
+    }
+
+    async deleteFromConferenceId(id: string): Promise<DeleteResult> {
+        const deleteResult = await MessageModel.deleteMany({roomId: id})
+        return deleteResult
     }
 
     async createMessage(roomId: string, userId: string, textMessage: string): Promise<Message> {

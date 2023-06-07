@@ -3,6 +3,7 @@ import ApiError from "@/exceptions/api-error";
 import ConferenceModel, { Conference } from "@/models/conference-model";
 import { User } from "@/models/user-model";
 import { DeleteResult } from "mongodb";
+import messageService from "./message-service";
 
 class ConfereceService {
     async getAllUserChats(id: string): Promise<Conference[]> {
@@ -14,6 +15,9 @@ class ConfereceService {
     async delete(id: string): Promise<boolean> {
         // console.log(id)
         const conference = await ConferenceModel.deleteOne({_id: id})
+
+        const deleteMessages = await messageService.deleteFromConferenceId(id)
+        
         // console.log(conference)
         return !!conference.deletedCount
     }
