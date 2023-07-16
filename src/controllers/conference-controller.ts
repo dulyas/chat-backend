@@ -1,59 +1,52 @@
 import contractService from "@/service/contract-service";
 import ApiError from "@/exceptions/api-error";
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from "express";
 import config from "@/config";
 import userService from "@/service/user-service";
 import ConferenceService from "@/service/conference-service";
 
 class ConferenceController {
-    async delete(req: Request, res: Response, next: NextFunction) {
+	async delete(req: Request, res: Response, next: NextFunction) {
+		try {
+			const { id } = req.body;
 
-        try {
-            const {id} = req.body
+			const deleteResult = await ConferenceService.delete(id);
 
-            const deleteResult = await ConferenceService.delete(id)
+			return res.json({
+				deleteResult,
+			});
+		} catch (e) {
+			next(e);
+		}
+	}
 
-            return res.json({
-                deleteResult
-            })
-        } catch (e) {
-            next(e)
-        }
-    }
+	async getConferenceById(req: Request, res: Response, next: NextFunction) {
+		try {
+			const { id } = req.body;
 
-   async getConferenceById(req: Request, res: Response, next: NextFunction) {
-        try {
-            const {id} = req.body 
+			const conference = ConferenceService.getConferenceById(id);
 
-            const conference = ConferenceService.getConferenceById(id)
+			return res.json({
+				conference,
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
 
-            return res.json({
-                conference
-            })
+	async getRoomDataById(req: Request, res: Response, next: NextFunction) {
+		try {
+			const { id } = req.body;
 
-        } catch (error) {
-            next(error)
-        }
-   } 
+			const roomData = await ConferenceService.getRoomDataById(id);
 
-   async getRoomDataById(req: Request, res: Response, next: NextFunction) {
-        try {
-            const {id} = req.body 
-
-            const roomData = await ConferenceService.getRoomDataById(id)
-
-
-            
-
-            return res.json({
-                ...roomData
-            })
-
-        } catch (error) {
-            next(error)
-        }
-    } 
-
+			return res.json({
+				...roomData,
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
 }
 
-export default new ConferenceController()
+export default new ConferenceController();

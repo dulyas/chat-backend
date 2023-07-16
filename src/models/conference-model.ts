@@ -5,44 +5,40 @@ import { User } from "./user-model";
 import UserDto from "@/dtos/user-dto";
 
 export interface Conference {
-    id: string
-    users: (User | UserDto)[]
-    avatarUrl: string
-    lastMessage: Message
-    unreadMessageCount: number 
+	id: string;
+	users: (User | UserDto)[];
+	avatarUrl: string;
+	lastMessage: Message;
+	unreadMessageCount: number;
 }
 
+const ConferenceSchema = new Schema<Conference>({
+	users: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: "User",
+			required: true,
+		},
+	],
 
+	unreadMessageCount: {
+		type: Number,
+		required: true,
+		default: 0,
+	},
 
-const ConferenceSchema = new Schema<Conference> ({
+	lastMessage: {
+		type: Schema.Types.ObjectId,
+		ref: "Message",
+	},
 
-    users: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    }],
+	avatarUrl: {
+		type: String,
+	},
 
-    unreadMessageCount: {
-        type: Number,
-        required: true,
-        default: 0
-    },
+	id: {
+		type: String,
+	},
+});
 
-    lastMessage: {
-        type: Schema.Types.ObjectId,
-        ref: "Message",
-    },
-
-    avatarUrl: {
-        type: String
-    },
-
-    id: {
-        type: String
-    }
-
-})
-
-
-
-export default model<Conference>('Conference', ConferenceSchema)
+export default model<Conference>("Conference", ConferenceSchema);

@@ -1,183 +1,196 @@
-import UserModel, { User } from "@/models/user-model"
-import bcrypt from 'bcrypt'
-import {v4} from 'uuid';
-import tokenService from "@/service/token-service"
-import UserDto from "@/dtos/user-dto"
+import UserModel, { User } from "@/models/user-model";
+import bcrypt from "bcrypt";
+import { v4 } from "uuid";
+import tokenService from "@/service/token-service";
+import UserDto from "@/dtos/user-dto";
 import ApiError from "@/exceptions/api-error";
 import { DeleteResult } from "mongodb";
 import contractModel from "@/models/contract-model";
 import { UserToken } from "@/models/token-model";
 
 class UserService {
+	async generateAndSaveTokens(user: User): Promise<any> {
+		const userDto = new UserDto(user);
+		const tokens = tokenService.generateTokens({ ...userDto });
 
-    async generateAndSaveTokens(user: User): Promise<any> {
-        const userDto = new UserDto(user)
-        const tokens = tokenService.generateTokens({...userDto})
+		await tokenService.saveToken(userDto._id, tokens.refreshToken);
 
-        
+		return {
+			tokens,
+			userDto,
+		};
+	}
 
-        await tokenService.saveToken(userDto._id, tokens.refreshToken)
+	async registration(email: string, password: string) {
+		const candidate = await UserModel.findOne({ email });
+		if (candidate) {
+			throw ApiError.BadRequest("Email already exist");
+		}
+		const hashPassword = await bcrypt.hash(password, 3);
 
-        return {
-            tokens,
-            userDto
-        }
-    }
+		const activationLink = v4();
+		const user = await UserModel.create({
+			email,
+			password: hashPassword,
+			activationLink,
+		});
 
-    async registration(email: string, password: string) {
-        const candidate = await UserModel.findOne({email})
-        if (candidate) {
-            throw ApiError.BadRequest('Email already exist')
-        } 
-        const hashPassword = await bcrypt.hash(password, 3)
+		// await mailService.sendActivationMail(email, `${config.API_URL}/api/activate/${activationLink}`)
 
-        const activationLink = v4()
-        const user = await UserModel.create({email, password: hashPassword, activationLink})
+		const { tokens, userDto } = await this.generateAndSaveTokens(user);
 
-        // await mailService.sendActivationMail(email, `${config.API_URL}/api/activate/${activationLink}`)
-        
-        const {tokens, userDto} = await this.generateAndSaveTokens(user)
+		return {
+			...tokens,
+			user: userDto,
+		};
+	}
 
-        return {
-            ...tokens,
-            user: userDto
-        }
+	async activate(activationLink: string): Promise<void> {
+		const user = await UserModel.findOne({ activationLink });
+		if (!user) {
+			throw ApiError.BadRequest("wrong link");
+		}
+		user.isActivated = true;
+		await user.save();
+	}
 
-    }
+	async login(email: string, password: string) {
+		const user = await UserModel.findOne({ email });
+		if (!user) {
+			throw ApiError.BadRequest("Пользователь не был найден");
+		}
 
-    async activate(activationLink: string): Promise<void> {
-        const user = await UserModel.findOne({activationLink})
-        if (!user) {
-            throw ApiError.BadRequest('wrong link')
-        }
-        user.isActivated = true
-        await user.save()
-    }
+		const isPassEquals = await bcrypt.compare(password, user.password);
+		if (!isPassEquals) {
+			throw ApiError.BadRequest("Неверный пароль");
+		}
 
-    async login(email: string, password: string) {
-        const user = await UserModel.findOne({email})
-        if (!user) {
-            throw ApiError.BadRequest('Пользователь не был найден')
-        }
+		const { tokens, userDto } = await this.generateAndSaveTokens(user);
 
-        const isPassEquals = await bcrypt.compare(password, user.password)
-        if (!isPassEquals) {
-            throw ApiError.BadRequest('Неверный пароль')
-        }
+		// console.log(tokens,userDto);
 
-        const {tokens, userDto} = await this.generateAndSaveTokens(user)
+		return {
+			...tokens,
+			user: userDto,
+		};
+	}
 
-        // console.log(tokens,userDto);
-        
+	async logout(refreshToken: string): Promise<DeleteResult> {
+		const token = tokenService.removeToken(refreshToken);
+		return token;
+	}
 
-        return {
-            ...tokens,
-            user: userDto
-        }
+	async refresh(refreshToken: string) {
+		if (!refreshToken) throw ApiError.UnauthorizedError();
+		const userData: UserToken | null =
+			tokenService.validateRefreshToken(refreshToken);
+		const tokenFromDb = await tokenService.findToken(refreshToken);
 
-    }
+		if (!userData || !tokenFromDb) {
+			throw ApiError.UnauthorizedError();
+		}
 
-    async logout(refreshToken: string) :Promise<DeleteResult> {
-        const token = tokenService.removeToken(refreshToken)
-        return token
-    }
+		const user = await UserModel.findById(userData._id);
 
-    async refresh(refreshToken: string) {
-        if (!refreshToken) throw ApiError.UnauthorizedError()
-        const userData: UserToken | null = tokenService.validateRefreshToken(refreshToken)
-        const tokenFromDb = await tokenService.findToken(refreshToken)
+		if (!user) throw ApiError.BadRequest("No User for this token");
 
-        if (!userData || !tokenFromDb) {
-            throw ApiError.UnauthorizedError()
-        }
+		const { tokens, userDto } = await this.generateAndSaveTokens(user);
 
+		return {
+			...tokens,
+			user: userDto,
+		};
+	}
 
+	async getAllUsers() {
+		try {
+			const users = await UserModel.find();
+			return users;
+		} catch (e) {
+			console.log(e);
+		}
+	}
 
-        const user = await UserModel.findById(userData._id)
+	async findUsers(searchString: string): Promise<UserDto[] | void> {
+		try {
+			const users = await UserModel.find({
+				$or: [
+					{
+						email: {
+							$regex: searchString,
+							$options: "i",
+						},
+					},
+					{
+						name: {
+							$regex: searchString,
+							$options: "i",
+						},
+					},
+				],
+			});
+			return users.map((user) => new UserDto(user));
+		} catch (e) {
+			console.log(e);
+		}
+	}
 
-        if (!user) throw ApiError.BadRequest('No User for this token')
+	async findFriendCandidatesForUserFromId(
+		id: string,
+		searchString: string,
+	): Promise<UserDto[] | void> {
+		try {
+			const users = await this.findUsers(searchString);
 
-        const {tokens, userDto} = await this.generateAndSaveTokens(user)
+			if (users) {
+				const alreadyFriends = (
+					await Promise.allSettled(
+						users.flatMap(async (user) =>
+							(await contractModel.findOne({
+								$or: [
+									{
+										from: user._id,
+										to: id,
+									},
+									{
+										to: user._id,
+										from: id,
+									},
+								],
+							}))
+								? []
+								: user,
+						),
+					)
+				).flatMap((user) =>
+					user?.status === "fulfilled" &&
+					user.value instanceof UserDto
+						? user.value
+						: [],
+				);
 
-        return {
-            ...tokens,
-            user: userDto
-        }
-    }
+				return alreadyFriends;
+			}
 
-    async getAllUsers() {
-        try {
-            const users = await UserModel.find()
-            return users
-        } catch (e) {
-            console.log(e)
-        }
-    }
+			return [];
+		} catch (e) {
+			console.log(e);
+		}
+	}
 
-    async findUsers(searchString: string): Promise<UserDto[] | void> {
-        try {
-            const users = await UserModel.find({
-                $or: [
-                    {email: {
-                        $regex: searchString,
-                        $options: 'i'
-                    }},
-                    {name: {
-                        $regex: searchString,
-                        $options: 'i'
-                    }},
-                ]
-            })
-            return users.map(user => new UserDto(user))
-        } catch (e) {
-            console.log(e)
-        }
-    }
-    
-    async findFriendCandidatesForUserFromId(id: string, searchString: string): Promise<UserDto[] | void> {
-        try {
+	async findOneById(id: string): Promise<UserDto | void> {
+		try {
+			const user = await UserModel.findById(id);
 
-            const users = await this.findUsers(searchString)
-            
-            
-            if (users) {
-                const alreadyFriends = (await Promise.allSettled(users.flatMap(async user => await contractModel.findOne({$or: [
-                    {
-                        from: user._id,
-                        to: id
-                    },
-                    {
-                        to: user._id,
-                        from: id
-                    }
-                ]}) ? [] : user))).flatMap(user => (user?.status === 'fulfilled' && user.value instanceof UserDto) ? user.value : []) 
-
-                
-
-                return alreadyFriends
-            }
-
-            return []
-
-        } catch (e) {
-            console.log(e)
-        }
-    }
-
-    async findOneById(id: string): Promise<UserDto | void> {
-        try {
-            const user = await UserModel.findById(id)
-            
-            if (user) {
-                return new UserDto(user)
-            } else {
-                throw ApiError.BadRequest('User not found')
-            }
-        } catch (e) {
-            console.log(e)
-        }
-    }
-
+			if (user) {
+				return new UserDto(user);
+			} else {
+				throw ApiError.BadRequest("User not found");
+			}
+		} catch (e) {
+			console.log(e);
+		}
+	}
 }
 
-export default new UserService()
+export default new UserService();
