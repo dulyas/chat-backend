@@ -1,6 +1,6 @@
 import "module-alias/register";
-import start from "@/service/express";
+// import start from "@/service/express";
 
 console.log("start server");
 
-start();
+// start();
