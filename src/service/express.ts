@@ -40,7 +40,7 @@ export const iOInstance = new IOInstance(server, {
 	},
 	pingInterval: 5000,
 	path: "/socket.io/",
-	// transports: ['websocket']
+	transports: ['websocket']
 	// transports: ["websocket", "polling"],
 });
 

@@ -7,7 +7,8 @@ import messageService from "./message-service";
 
 class ConfereceService {
 	async getAllUserChats(id: string): Promise<Conference[]> {
-		const chats = await ConferenceModel.find({ users: id });
+		const chats = await ConferenceModel.find({ users: id }).lean();
+
 		// console.log(chats)
 		return chats;
 	}
