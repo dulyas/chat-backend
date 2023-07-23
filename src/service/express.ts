@@ -33,6 +33,7 @@ app.use("/api", router);
 app.use(errorMiddleware);
 
 const server = http.createServer(app);
+console.log("start 1");
 
 export const iOInstance = new IOInstance(server, {
 	cors: {
@@ -40,16 +41,18 @@ export const iOInstance = new IOInstance(server, {
 	},
 	pingInterval: 5000,
 	path: "/socket.io/",
-	transports: ['websocket']
+	transports: ["websocket"],
 	// transports: ["websocket", "polling"],
 });
+console.log("start 2");
 
-const start: Function = async (): Promise<void> => {
+const start = async (): Promise<void> => {
 	try {
 		await mongoose.connect(config.DB_URL, {
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
 		} as ConnectOptions);
+		console.log("start 3");
 		server.listen(PORT, () => console.log(`server listen on ${PORT}`));
 	} catch (e) {
 		console.log(e);
